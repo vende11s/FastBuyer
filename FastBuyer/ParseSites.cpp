@@ -1,4 +1,6 @@
 // Copyright 2025 vende11s
+#include "ParseSites.hpp"
+
 #include <string>
 #include <vector>
 #include <cctype>

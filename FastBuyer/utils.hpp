@@ -54,13 +54,15 @@ inline void wait(int seconds, std::mt19937& engine, std::uniform_int_distributio
 	LOG("Waited for " + std::to_string(random) + " seconds");
 }
 
-inline bool sendOffer(const OfferQuery::Offer& offer, tba::TelegramBotApi& bot, std::string& chat_id) {
+inline void sendOffer(const OfferQuery::Offer& offer, tba::TelegramBotApi& bot, std::string& chat_id) {
 	std::string i_hate_cpp23_utf_support(offer.title.begin(), offer.title.end());
 	std::string caption = "<b>" + i_hate_cpp23_utf_support + "</b>\n" +
 		"Cena: " + std::to_string(offer.price) + "zl\n" +
 		"Link: " + offer.link;
 
-	return bot.sendPhotoUrl(offer.imageUrl, caption, "HTML", chat_id);
+	if (!bot.sendPhotoUrl(offer.imageUrl, caption, "HTML", chat_id)) {
+		throw std::runtime_error("Failed to send offer photo: " + offer.imageUrl);
+	}
 }
 
 inline void drawLogo() {
@@ -70,6 +72,6 @@ inline void drawLogo() {
 | |_ / _` / __| __|  _ \| | | | | | |/ _ \ '__|
 |  _| (_| \__ \ |_| |_) | |_| | |_| |  __/ |   
 |_|  \__,_|___/\__|____/ \__,_|\__, |\___|_|   
-                               |___/v1.0.0)"<<std::endl;
+                               |___/v1.1.0)"<<std::endl;
 }
 }

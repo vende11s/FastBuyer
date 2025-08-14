@@ -20,4 +20,4 @@ can specify to use another than global chat_id for single query, as it is in exa
 - [ ] help command
 - [ ] command to reread config.json
 - [ ] add scrapping all pages for olx
-- [ ] analysis of market (what offer was sold when and for how much
+- [ ] keeping data for analysis of the market (what offer was sold when and for how much)

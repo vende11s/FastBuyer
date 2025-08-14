@@ -135,11 +135,13 @@
   <ItemGroup>
     <ClCompile Include="FastBuyer.cpp" />
     <ClCompile Include="ParseSites.cpp" />
+    <ClCompile Include="TelegramHandling.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OfferQuery.hpp" />
     <ClInclude Include="ParseSites.hpp" />
     <ClInclude Include="TelegramBotApi.hpp" />
+    <ClInclude Include="TelegramHandling.hpp" />
     <ClInclude Include="utils.hpp" />
   </ItemGroup>
   <ItemGroup>

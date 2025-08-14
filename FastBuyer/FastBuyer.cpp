@@ -1,5 +1,5 @@
 ﻿// Copyright 2025 vende11s
-// v1.0.0
+// v1.1.0
 #include <iostream>
 #include <string>
 #include <vector>
@@ -13,6 +13,7 @@
 #include "OfferQuery.hpp"
 #include "ParseSites.hpp"
 #include "utils.hpp"
+#include "TelegramHandling.hpp"
 
 using utils::LOG;
 
@@ -41,7 +42,7 @@ int main(){
         bot.chatId = jsonConfig["config"]["chat_id"];
         IS_GLOBAL_CHAT_ID = true;
     }
-    
+    communication::HandleTelegram(bot); // Start Telegram handling in a separate thread
     std::vector<Query> queries;
     std::map<std::string, int> sentOffers; // url & price
 
@@ -105,13 +106,14 @@ int main(){
                 if (!parse::filterOffer(offer.title, query.positivePrompts, query.negativePrompts))
                     continue;
 
-				// send offer to Telegram
-                if (utils::sendOffer(offer, bot, query.chat_id)) {
-					LOG("Sent offer: " + offer.title + " for " + std::to_string(offer.price) + "zl");
-					sentOffers[offer.link] = offer.price; // update sent offers with the new price
+                // send offer to Telegram
+                try{
+                    utils::sendOffer(offer, bot, query.chat_id);
+                    LOG("Sent offer: " + offer.title + " for " + std::to_string(offer.price) + "zl");
+                    sentOffers[offer.link] = offer.price; // update sent offers with the new price
                 }
-                else {
-					LOG("Failed to send offer: " + offer.title);
+                catch (...) {
+                    LOG("Failed to send offer: " + offer.title);
                 }
             }
         }

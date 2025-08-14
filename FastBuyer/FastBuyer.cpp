@@ -14,9 +14,11 @@
 #include "ParseSites.hpp"
 #include "utils.hpp"
 
+using utils::LOG;
+
 int main(){
 	// setting fastbuyer up start
-    drawLogo();
+    utils::drawLogo();
 	LOG("setting FastBuyer up...");
     std::ifstream configStream("config.json");
     if (!configStream) {
@@ -34,8 +36,12 @@ int main(){
     std::uniform_int_distribution<> distrib(0, jsonConfig["config"]["refresh_seconds_randomization"]);
 
     tba::TelegramBotApi bot(jsonConfig["config"]["telegram_token"]);
-    bot.chatId = jsonConfig["config"]["chat_id"];
-
+    bool IS_GLOBAL_CHAT_ID = false;
+    if(jsonConfig["config"].contains("chat_id")) {
+        bot.chatId = jsonConfig["config"]["chat_id"];
+        IS_GLOBAL_CHAT_ID = true;
+    }
+    
     std::vector<Query> queries;
     std::map<std::string, int> sentOffers; // url & price
 
@@ -49,6 +55,16 @@ int main(){
             query.pricePoint = jsonConfig["queries"][i]["price_point"];
             query.positivePrompts = jsonConfig["queries"][i]["positive_prompts"];
             query.negativePrompts = jsonConfig["queries"][i]["negative_prompts"];
+
+            if(jsonConfig["queries"][i].contains("chat_id")) {
+                query.chat_id = jsonConfig["queries"][i]["chat_id"];
+            } else {
+                if (!IS_GLOBAL_CHAT_ID) {
+					LOG("Chat ID is not specified for query: " + query.title + ", there is no global chat_id to use, shutting down...");
+                    return 1;
+                }
+                query.chat_id = bot.chatId; // use default chat id from config
+			}
         }
         catch (...) {
             std::cerr << "Failed to parse query\n";
@@ -65,12 +81,12 @@ int main(){
             try {
                 if (query.type == "allegro") {
 					LOG("Scrapping allegro offers for query: " + query.title);
-                    offers = parseAllegroLokalnie(query.url);
+                    offers = parse::parseAllegroLokalnie(query.url);
                     LOG("Found " + std::to_string(offers.size()) + " allegro offers for query: " + query.title);
                 }
                 else if (query.type == "olx") {
                     LOG("Scrapping olx offers for query: " + query.title);
-                    offers = parseOlx(query.url);
+                    offers = parse::parseOlx(query.url);
                     LOG("Found " + std::to_string(offers.size()) + " olx offers for query: " + query.title);
                 }
             }
@@ -86,11 +102,11 @@ int main(){
                 // if offer was already sent at better or equal price
                 if (sentOffers.find(offer.link) != sentOffers.end() && sentOffers[offer.link] <= offer.price)
                     continue;
-                if (!filterOffer(offer.title, query.positivePrompts, query.negativePrompts))
+                if (!parse::filterOffer(offer.title, query.positivePrompts, query.negativePrompts))
                     continue;
 
 				// send offer to Telegram
-                if (sendOffer(offer, bot)) {
+                if (utils::sendOffer(offer, bot, query.chat_id)) {
 					LOG("Sent offer: " + offer.title + " for " + std::to_string(offer.price) + "zl");
 					sentOffers[offer.link] = offer.price; // update sent offers with the new price
                 }
@@ -99,12 +115,6 @@ int main(){
                 }
             }
         }
-        wait(refresh_seconds, gen, distrib);
+        utils::wait(refresh_seconds, gen, distrib);
     }
 }
-
-
-/*
-	// TODO: implement OLX parsing, auto sent_offers cleanup after offer disappears
-
-*/

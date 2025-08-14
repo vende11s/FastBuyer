@@ -1,9 +1,9 @@
 {
     "config": {
-        "telegram_token":"niga",
-        "chat_id":"niga2",
-        "refresh_seconds":64,
-        "refresh_seconds_randomization":10
+        "telegram_token":"aaaa",
+        "chat_id":"bbbb",
+        "refresh_seconds":660,
+        "refresh_seconds_randomization":120
     },
 
     "queries": [
@@ -13,7 +13,8 @@
                 "url":"https://allegrolokalnie.pl/oferty/q/samsung%20s23%20-s23%2B%20-plus%20-ultra?price_from=300&sort=startingTime-desc",
                 "price_point": 500,
                 "negative_prompts": ["ultra", "s23+", "plus", "fe", "s23fe"],
-                "positive_prompts": ["s23"]
+                "positive_prompts": ["s23"],
+                "chat_id":"cccc"
             },
             {
                 "title":"Samsung s23",

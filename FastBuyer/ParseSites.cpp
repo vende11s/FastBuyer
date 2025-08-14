@@ -10,6 +10,9 @@
 #include "OfferQuery.hpp"
 #include "utils.hpp"
 
+using namespace OfferQuery;
+using utils::LOG;
+
 static std::string getSite(std::string url) {
     cpr::Response r = cpr::Get(cpr::Url{ url });
     return r.text;
@@ -77,7 +80,7 @@ static Offer parseOneOfferAllegroLokalnie(std::string& raw_html) {
 
     return offer;
 }
-
+namespace parse {
 std::vector<Offer> parseAllegroLokalnie(std::string url) {
     std::vector<Offer> offers;
     std::string raw_html = getSite(url);
@@ -122,7 +125,6 @@ std::vector<Offer> parseAllegroLokalnie(std::string url) {
 // css-gl6djm - photo
 // css-1g61gc2 - title
 // css-uj7mm0 - price
-
 static Offer parseOneOfferOlx(std::string& raw_html) {
     Offer offer;
 
@@ -231,9 +233,4 @@ bool filterOffer(std::string title, std::vector<std::string>& positivePrompts, s
 
     return true;
 }
-
-/*void DEBUGLokalnieTest() {
-    auto lokalnie = parseAllegroLokalnie("https://allegrolokalnie.pl/oferty/q/samsung%20s23%20-s23%2B%20-plus%20-ultra?price_from=300&sort=startingTime-desc");
-
-
-}*/
+}

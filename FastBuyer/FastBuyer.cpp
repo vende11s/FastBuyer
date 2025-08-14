@@ -1,11 +1,11 @@
 ﻿// Copyright 2025 vende11s
-// v1.1.0
+// v1.2.0
 #include <iostream>
 #include <string>
 #include <vector>
 #include <map>
-#include <fstream>
-#include <random>
+#include <atomic>
+#include <thread>
 
 #include <nlohmann/json.hpp>
 #include "TelegramBotApi.hpp"
@@ -14,6 +14,7 @@
 #include "ParseSites.hpp"
 #include "utils.hpp"
 #include "TelegramHandling.hpp"
+#include "ConfigReader.hpp"
 
 using utils::LOG;
 
@@ -21,63 +22,22 @@ int main(){
 	// setting fastbuyer up start
     utils::drawLogo();
 	LOG("setting FastBuyer up...");
-    std::ifstream configStream("config.json");
-    if (!configStream) {
-        std::cerr << "Could not open config.json\n";
-        return 1;
-    }
-    nlohmann::json jsonConfig;
-    configStream >> jsonConfig;
-	configStream.close();
 
-	int refresh_seconds = jsonConfig["config"]["refresh_seconds"];
-    // setting up random number generator for randomization
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(0, jsonConfig["config"]["refresh_seconds_randomization"]);
+    // Read configuration from config.json
+    config::Config config;
+	config.read(); 
 
-    tba::TelegramBotApi bot(jsonConfig["config"]["telegram_token"]);
-    bool IS_GLOBAL_CHAT_ID = false;
-    if(jsonConfig["config"].contains("chat_id")) {
-        bot.chatId = jsonConfig["config"]["chat_id"];
-        IS_GLOBAL_CHAT_ID = true;
-    }
-    communication::HandleTelegram(bot); // Start Telegram handling in a separate thread
-    std::vector<Query> queries;
+    tba::TelegramBotApi bot(config.telegram_token);
+	bot.chatId = config.chat_id;
+
     std::map<std::string, int> sentOffers; // url & price
-
-    for (size_t i = 0; i < jsonConfig["queries"].size(); i++) {
-        Query query;
-
-        try {
-            query.title = jsonConfig["queries"][i]["title"];
-            query.type = jsonConfig["queries"][i]["type"]; // "allegro" or "olx"
-            query.url = jsonConfig["queries"][i]["url"];
-            query.pricePoint = jsonConfig["queries"][i]["price_point"];
-            query.positivePrompts = jsonConfig["queries"][i]["positive_prompts"];
-            query.negativePrompts = jsonConfig["queries"][i]["negative_prompts"];
-
-            if(jsonConfig["queries"][i].contains("chat_id")) {
-                query.chat_id = jsonConfig["queries"][i]["chat_id"];
-            } else {
-                if (!IS_GLOBAL_CHAT_ID) {
-					LOG("Chat ID is not specified for query: " + query.title + ", there is no global chat_id to use, shutting down...");
-                    return 1;
-                }
-                query.chat_id = bot.chatId; // use default chat id from config
-			}
-        }
-        catch (...) {
-            std::cerr << "Failed to parse query\n";
-            return 1;
-        }
-		queries.push_back(query);
-    }
+    LOG("setting telegram handler up...");
+	std::thread telegramHandlerThread(communication::HandleTelegram, bot);
     LOG("FastBuyer is up, scrapping time!");
     // setting fastbuyer up end
 
     while (true) {
-        for (auto& query : queries) {
+        for (auto& query : config.queries) {
             std::vector<Offer> offers;
             try {
                 if (query.type == "allegro") {
@@ -108,7 +68,7 @@ int main(){
 
                 // send offer to Telegram
                 try{
-                    utils::sendOffer(offer, bot, query.chat_id);
+                    communication::sendOffer(offer, bot, query.chat_id);
                     LOG("Sent offer: " + offer.title + " for " + std::to_string(offer.price) + "zl");
                     sentOffers[offer.link] = offer.price; // update sent offers with the new price
                 }
@@ -117,6 +77,22 @@ int main(){
                 }
             }
         }
-        utils::wait(refresh_seconds, gen, distrib);
+        utils::wait(config.refresh_seconds, config.refresh_seconds_randomization);
+
+        if(communication::doReadConfig.load()) {
+			LOG("Trying to update config...");
+            try {
+                config.read(); // re-read config
+
+				// Update bot and distribution with new config
+                bot.chatId = config.chat_id;
+
+                communication::doReadConfig.store(false);
+                LOG("Config updated successfully.");
+            }
+            catch (const std::exception& e) {
+                LOG("Failed to update config: " + std::string(e.what()));
+            }
+		}
     }
 }

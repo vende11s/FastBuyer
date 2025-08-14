@@ -133,11 +133,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ConfigReader.cpp" />
     <ClCompile Include="FastBuyer.cpp" />
     <ClCompile Include="ParseSites.cpp" />
     <ClCompile Include="TelegramHandling.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConfigReader.hpp" />
     <ClInclude Include="OfferQuery.hpp" />
     <ClInclude Include="ParseSites.hpp" />
     <ClInclude Include="TelegramBotApi.hpp" />

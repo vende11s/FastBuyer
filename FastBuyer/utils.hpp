@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// Copyright 2025 vende11s
+#pragma once
 #include <chrono>
 #include <thread>
 #include <random>
@@ -38,7 +39,10 @@ inline void LOG(std::string message) {
 	log << data;
 }
 
-inline void wait(int seconds, std::mt19937& engine, std::uniform_int_distribution<>& distrib, bool dont_random = 0) {
+inline void wait(int seconds, int refresh_seconds_randomization, bool dont_random = 0) {
+	static std::random_device rd;
+	static std::mt19937 engine(rd());
+	std::uniform_int_distribution<> distrib(0, refresh_seconds_randomization);
 	int random = distrib(engine);
 	if(distrib(engine) % 2 == 0) {
 		random = -random; // randomize direction
@@ -54,17 +58,6 @@ inline void wait(int seconds, std::mt19937& engine, std::uniform_int_distributio
 	LOG("Waited for " + std::to_string(random) + " seconds");
 }
 
-inline void sendOffer(const OfferQuery::Offer& offer, tba::TelegramBotApi& bot, std::string& chat_id) {
-	std::string i_hate_cpp23_utf_support(offer.title.begin(), offer.title.end());
-	std::string caption = "<b>" + i_hate_cpp23_utf_support + "</b>\n" +
-		"Cena: " + std::to_string(offer.price) + "zl\n" +
-		"Link: " + offer.link;
-
-	if (!bot.sendPhotoUrl(offer.imageUrl, caption, "HTML", chat_id)) {
-		throw std::runtime_error("Failed to send offer photo: " + offer.imageUrl);
-	}
-}
-
 inline void drawLogo() {
 	std::cout << R"(
  _____         _   ____                        
@@ -72,6 +65,6 @@ inline void drawLogo() {
 | |_ / _` / __| __|  _ \| | | | | | |/ _ \ '__|
 |  _| (_| \__ \ |_| |_) | |_| | |_| |  __/ |   
 |_|  \__,_|___/\__|____/ \__,_|\__, |\___|_|   
-                               |___/v1.1.0)"<<std::endl;
+                               |___/v1.2.0)"<<std::endl;
 }
 }

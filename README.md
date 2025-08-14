@@ -13,11 +13,8 @@ put all the data in config.json file (u got example one in repo)<br>
 use lowercase only for positivePrompt and negativePrompt<br>
 program scrapps all pages for allegro lokalnie and only first 3 pages for olx (scrapping olx is way harder)<br>
 can specify to use another than global chat_id for single query, as it is in example config.json<br>
+there is also communication with FastBuyer via telegram, just write !help in chat to see available commands<br>
 
 ### TODO
-- [ ] command for asking if FastBuyer is up
-- [ ] command to ask about offer popularity (how many sold in last 24h, 7 days, 30 days))
-- [ ] help command
-- [ ] command to reread config.json
 - [ ] add scrapping all pages for olx
 - [ ] keeping data for analysis of the market (what offer was sold when and for how much)

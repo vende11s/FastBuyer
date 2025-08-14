@@ -1,0 +1,27 @@
+{
+    "config": {
+        "telegram_token":"niga",
+        "chat_id":"niga2",
+        "refresh_seconds":64,
+        "refresh_seconds_randomization":10
+    },
+
+    "queries": [
+            {
+                "title":"Samsung s23",
+                "type":"allegro",
+                "url":"https://allegrolokalnie.pl/oferty/q/samsung%20s23%20-s23%2B%20-plus%20-ultra?price_from=300&sort=startingTime-desc",
+                "price_point": 500,
+                "negative_prompts": ["ultra", "s23+", "plus", "fe", "s23fe"],
+                "positive_prompts": ["s23"]
+            },
+            {
+                "title":"Samsung s23",
+                "type":"olx",
+                "url":"https://www.olx.pl/elektronika/telefony/q-samsung-s23/?courier=1&search%5Bphotos%5D=1&search%5Border%5D=created_at:desc",
+                "price_point": 500,
+                "negative_prompts": ["ultra", "s23+", "plus", "fe", "s23fe"],
+                "positive_prompts": ["s23"]
+            }
+        ]
+}

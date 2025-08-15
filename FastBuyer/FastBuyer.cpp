@@ -1,5 +1,5 @@
 ﻿// Copyright 2025 vende11s
-// v1.2.0
+// v1.2.1
 #include <iostream>
 #include <string>
 #include <vector>

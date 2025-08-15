@@ -56,7 +56,7 @@ void HandleTelegram(tba::TelegramBotApi bot) {
 			continue;
 		if(lastMessageId == messageJson["result"][0]["update_id"])
 			continue;
-		if(messageJson["result"][0]["date"] < std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - std::chrono::seconds(120))) {
+		if(messageJson["result"][0]["channel_post"]["date"] < std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - std::chrono::seconds(120))) {
 			utils::LOG("Ignoring old message, update_id: " + std::to_string(messageJson["result"][0]["update_id"].get<int>()));
 			lastMessageId = messageJson["result"][0]["update_id"];
 			continue; // ignore messages older than 120 seconds

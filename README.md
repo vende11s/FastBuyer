@@ -16,5 +16,6 @@ can specify to use another than global chat_id for single query, as it is in exa
 there is also communication with FastBuyer via telegram, just write !help in chat to see available commands<br>
 
 ### TODO
+- [ ] add sent.json (when launching FastBuyer its always sending things i already saw)
 - [ ] add scrapping all pages for olx
 - [ ] keeping data for analysis of the market (what offer was sold when and for how much)
